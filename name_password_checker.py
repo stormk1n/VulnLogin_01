@@ -57,7 +57,7 @@ def logout():
 #Check sessions that are on
 @app.route("/sessions")
 def sessions():
-    return dict(session)    
+    return dict(session)   
 
 if __name__ == "__main__":
     app.run(debug=True)
