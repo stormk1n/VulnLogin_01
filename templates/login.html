@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=, initial-scale=1.0">
     <title>login</title>
-    <link rel="stylesheet" href="../assets/styles/loginstyles.css">
-    <link rel="icon" href="../assets/icons/Banner 2.png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/loginstyles.css') }}">
+    <link rel="icon" href="../assets/icons/Banner 2.png" type="image/png">
 </head>
 <body>
 
@@ -14,7 +14,7 @@
             <form method="POST">
             
             <input type="text" name="name" placeholder="Name" class="credsinput">
-            <input type="password" name="password" placeholder="Password" class="credsinput">
+            <input type="password" name="password" placeholder="Password" class="credsinput" required>
             <button type="submit" class="loginBtn">Login</button>
             </form>
         </div>
@@ -24,6 +24,6 @@
     </section>
 
 
-    <script src="../assets/scripts/loginscript.js"></script>
+    <script src="{{ url_for('static', filename='scripts/loginscript.js') }}"></script>
 </body>
 </html>

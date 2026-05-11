@@ -2,7 +2,11 @@ from flask import Flask, request, redirect, session, render_template
 import base64
 import secrets
 
-app = Flask(__name__, template_folder="../templates")
+app = Flask(__name__, 
+            template_folder="../templates", # Tells Flask to look in "../templates" for template files
+            static_folder="../assets/", # Tells Flask to look in "../assets" for static files
+            static_url_path="/assets" # This makes the URL look like /assets/styles/styles.css
+            )
 
 # Needed for flask sessions
 app.secret_key = secrets.token_hex(32)
@@ -28,10 +32,10 @@ def login():
         #Stores user sessions at the browser level 
         session["user"] = name
         session["auth"] = encodedCreds 
-
+        
         return redirect("/dashboard")
 
-    #Creates the form
+    # This renders the HTML file instead of returning a simple string
     return render_template("login.html")
 
 @app.route("/dashboard")
@@ -52,7 +56,18 @@ def logout():
 #Check sessions that are on
 @app.route("/sessions")
 def sessions():
-    return dict(session)   
+    return dict(session)
+
+import os
+from flask import send_from_directory
+
+@app.route("/Banner_2.png")
+def favicon():
+    # This sends the file from your assets/icons folder to the root /favicon.png
+    return send_from_directory(os.path.join(app.root_path, '../assets/icons'), 
+                              'Banner_2.png', 
+                               mimetype='image/png')
+
 
 if __name__ == "__main__":
     app.run(debug=True)
