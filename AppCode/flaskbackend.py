@@ -44,7 +44,7 @@ def dashboard():
         return "Unauthorized", 401
 
 
-    return render_template("/dashboard.html")
+    return render_template("dashboard.html")
 
 
 @app.route("/logout")
