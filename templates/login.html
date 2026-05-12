@@ -2,28 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=, initial-scale=1.0">
-    <title>login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/loginstyles.css') }}">
-    <link rel="icon" href="../assets/icons/Banner 2.png" type="image/png">
+    <link rel="icon" type="image/png" href="../assets/icons/Banner 2.png">
 </head>
 <body>
-
     <section id="main">
-        <div class="container">
-            <form method="POST">
-            
-            <input type="text" name="name" placeholder="Name" class="credsinput">
-            <input type="password" name="password" placeholder="Password" class="credsinput" required>
-            <button type="submit" class="loginBtn">Login</button>
-            </form>
-        </div>
+        <h1>Please Login</h1>
+        <form method="POST">
+            <div class="form-control">
+                <input type="text" required>
+                <label>Email</label>
+            </div>
 
+            <div class="form-control">
+                <input type="password" required>
+                <label>Password</label>
+            </div>
 
-
+            <button class="btn">Login</button>
+            <p class="text">Don't have an accoutn? <a href="../templates/register.html">Register</a></p>
+        </form>
     </section>
 
-
-    <script src="{{ url_for('static', filename='scripts/loginscript.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/loginscripts.js') }}"></script>
 </body>
 </html>
