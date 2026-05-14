@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/loginstyles.css') }}">
     <link rel="icon" type="image/png" href="../assets/icons/Banner 2.png">
 </head>
+
 <body>
     <section id="main">
-        <h1>Please Login</h1>
+        <h1 class="logn-header">Please Login</h1>
         <form method="POST">
             <div class="form-control">
                 <input type="text" required>
@@ -28,4 +30,5 @@
 
     <script src="{{ url_for('static', filename='scripts/loginscripts.js') }}"></script>
 </body>
+
 </html>
