@@ -27,17 +27,24 @@ body {
     display: block;
     align-items: center;
     justify-content: center;
+    margin: 15px 0 25px 0;
+    position: relative;
 }
 
 .form-control input{
-    padding: 20px;
-    position: absolute;
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
 }
 
 .form-control label{
-    position: relative;
+    position: absolute;
     left: 10%;
+    top: 30%;
+    justify-content: center;
+    align-items: center;
     color: #333;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .text a{
