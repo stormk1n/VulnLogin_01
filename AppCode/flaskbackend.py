@@ -3,7 +3,7 @@ import base64
 import secrets
 
 app = Flask(__name__, 
-            template_folder="../templates", # Tells Flask to look in "../templates" for template files
+            template_folder="../HTML", # Tells Flask to look in "../templates" for template files
             static_folder="../assets/", # Tells Flask to look in "../assets" for static files
             static_url_path="/assets" # This makes the URL look like /assets/styles/styles.css
             )
@@ -63,7 +63,7 @@ from flask import send_from_directory
 
 @app.route("/Banner_2.png")
 def favicon():
-    # This sends the file from your assets/icons folder to the root /favicon.png
+    # This sends favicon file from your assets/icons folder to the root /favicon.png
     return send_from_directory(os.path.join(app.root_path, '../assets/icons'), 
                               'Banner_2.png', 
                                mimetype='image/png')
