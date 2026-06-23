@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/dbstyles.css') }}">
-    <link rel="icon" href="{{url_for('static', filename='icons/Banner_2.png')}}" type="image/png">
+    <link rel="icon" href="../assets/icons/Banner 2.png" type="image/png">
 </head>
+
 <body>
     <!-- This displays the username stored in the session flaskbackend.py-->
     <h1>Welcome, {{ session['user'] }}!</h1>
 
 
-    <script src="{{url_for('static', filename='scripts/dbscript.js')}}"></script>
+    <script src="../assets/scripts/dbscript.js"></script>
 </body>
+
 </html>
