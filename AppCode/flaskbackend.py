@@ -1,6 +1,13 @@
 from flask import Flask, request, redirect, session, render_template
 import base64
 import secrets
+import sqlite3
+import bcrypt
+import time
+import sys
+import signal
+import os
+
 
 app = Flask(__name__, 
             template_folder="../HTML", # Tells Flask to look in "../templates" for template files
@@ -11,14 +18,63 @@ app = Flask(__name__,
 # Needed for flask sessions
 app.secret_key = secrets.token_hex(32)
 
+
+# Handles ctrl+c and closes cleanly
+'''
+import signal
+import time
+import sys 
+
+# prints two messages on the screen when closing 
+# the parent process (reloader) and child process (flask backend process)
+def handleCtrlC(signum, frame):
+    print("\nCtrl+C detected! Exiting Cleanly")
+    sys.exist(0)
+
+signal.signal(signal.SIGINT, handleCtrlC)
+'''
+def handleCtrlC(signum, frame):
+    # Only print and exit explicitly if this is the active backend worker
+    if os.environ.get("WERKZEUG_RUN_MAIN") == 'true':
+        print("\nCtrl+C detected! Exiting cleanly...")
+    
+    sys.exit(0)
+
+# Register the handler for the SIGINT signal (Ctrl+C)
+signal.signal(signal.SIGINT, handleCtrlC)
+
+def initDB():
+# Connect to a database file (creates 'userDB.db' if its missing)
+    connection = sqlite3.connect('userDB.db')
+    
+# Create a cursor object to execute our SQL commands
+    cursor = connection.cursor()
+    
+# Execute query to create table and its attributes
+    cursor.execute('''
+    CREATE TABLE IF NOT EXIST users(
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    username TEXT UNIQUE NOT NULL, 
+    password hash TEXT NOT NULL
+    )''')
+
+# Saves changes made
+    connection.commit()
+
+# Closes connection to prevent resource leaks
+    connection.close()
+
+
+
+# creates login route
+@app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
 
-
-#Defines the login request/response
+#Defines the login functione
 def login():
     if request.method == "POST":
         name = request.form.get("name")
-        password = request.form.get("password") #Captures the creds from the user
+        password = request.form.get("password") # Captures the creds from the user
         
         if not password:
             return "Password required", 400
@@ -38,6 +94,7 @@ def login():
     # This renders the HTML file instead of returning a simple string
     return render_template("login.html")
 
+
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -47,18 +104,21 @@ def dashboard():
     return render_template("dashboard.html")
 
 
+
 @app.route("/logout")
 def logout():
     session.clear()
     return "Logged out"
 
 
-#Check sessions that are on
+
+# Check sessions that are on
 @app.route("/sessions")
 def sessions():
     return dict(session)
 
-import os
+# send favicon out
+# import os <--- needs
 from flask import send_from_directory
 
 @app.route("/Banner_2.png")
