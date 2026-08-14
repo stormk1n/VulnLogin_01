@@ -14,6 +14,7 @@ checkBcrypt(){
 
 checkBcrypt
 
+
 echo '[+] Starting lab: VulnLogin01!'
 
 python3 ./AppCode/flaskbackend.py

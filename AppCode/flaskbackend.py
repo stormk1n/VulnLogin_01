@@ -43,7 +43,7 @@ def handleCtrlC(signum, frame):
 # Register the handler for the SIGINT signal (Ctrl+C)
 signal.signal(signal.SIGINT, handleCtrlC)
 
-def initDB():
+def initDB(name, password):
 # Connect to a database file (creates 'userDB.db' if its missing)
     connection = sqlite3.connect('userDB.db')
     
@@ -52,7 +52,7 @@ def initDB():
     
 # Execute query to create table and its attributes
     init = ('''
-    CREATE TABLE IF NOT EXIST users(
+    CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     username TEXT UNIQUE NOT NULL, 
     password hash TEXT NOT NULL
@@ -60,13 +60,17 @@ def initDB():
 
     cursor.execute(init)
 
-    userRgstr = ('''
-    
-    ''')
-# Check
-    userLgn = (
+    admin = ("""
+    INSERT INTO users(username,password)
+    VALUES(admin,admin)
+    """)
 
-    )
+# Inserts values into the database
+    userRgstr = (f"""
+    INSERT INTO users(username, password)
+    VALUES('{name}','{password}')
+    """)
+    cursor.execute(userRgstr)
 
 
 # Saves changes made
@@ -76,6 +80,18 @@ def initDB():
     connection.close()
 
 
+def loginDB(name, passwd):
+    connection - sqlite3.connect('userDB.db')
+
+    cursor = connection.cursor()
+
+    # SQLI ENTRY POINT
+    usrLgn = (f"""
+    SELECT * FROM users WHERE username={name} AND password={password}
+    """)
+
+    connection.commit()
+    connection.close()
 
 # creates login route
 @app.route("/", methods=["GET", "POST"])
@@ -96,6 +112,8 @@ def login():
         combinedCreds = f"{name}:{password}" #combines two variables for later B64 encoding
         encodedCreds = base64.b64encode(combinedCreds.encode()).decode()
 
+        loginDB(name, password)
+
         #Stores user sessions at the browser level 
         session["user"] = name
         session["auth"] = encodedCreds 
@@ -113,12 +131,15 @@ def register():
     if request.method == "POST":
         name = request.form.get("name")
         password = request.form.get("password")
+        b64Passwd = base64.b64encode(password.encode()).decode()
 
         if not password:
             return "Password required", 400
         
         if len(password) < 8:
             return "Password too short!", 400
+
+        initDB(name, b64Passwd)
         
         return redirect("/dashboard")
 
@@ -130,7 +151,7 @@ def register():
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
-        return "Unauthorized", 401
+        return redirect("/login")
 
 
     return render_template("dashboard.html")
@@ -142,7 +163,7 @@ def dashboard():
 @app.route("/logout")
 def logout():
     session.clear()
-    return "Logged out"
+    return redirect("/")
 
 
 
