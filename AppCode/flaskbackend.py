@@ -51,12 +51,23 @@ def initDB():
     cursor = connection.cursor()
     
 # Execute query to create table and its attributes
-    cursor.execute('''
+    init = ('''
     CREATE TABLE IF NOT EXIST users(
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     username TEXT UNIQUE NOT NULL, 
     password hash TEXT NOT NULL
     )''')
+
+    cursor.execute(init)
+
+    userRgstr = ('''
+    
+    ''')
+# Check
+    userLgn = (
+
+    )
+
 
 # Saves changes made
     connection.commit()
@@ -95,6 +106,27 @@ def login():
     return render_template("login.html")
 
 
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        name = request.form.get("name")
+        password = request.form.get("password")
+
+        if not password:
+            return "Password required", 400
+        
+        if len(password) < 8:
+            return "Password too short!", 400
+        
+        return redirect("/dashboard")
+
+    return render_template("register.html")
+
+
+
+
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -105,10 +137,13 @@ def dashboard():
 
 
 
+
+
 @app.route("/logout")
 def logout():
     session.clear()
     return "Logged out"
+
 
 
 
