@@ -13,6 +13,9 @@
     <section id="main">
         <h1 class="lgn-header">Please Login</h1>
         <form method="POST">
+            {% if error_msg %}
+            <p style="color: #fff; font-weight: bold;">{{ error_msg | safe }}</p>
+            {% endif %}
             <div class="form-control">
                 <input type="text" name="name" required>
                 <label>username</label>

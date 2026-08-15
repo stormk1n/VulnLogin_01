@@ -29,7 +29,7 @@ import sys
 # the parent process (reloader) and child process (flask backend process)
 def handleCtrlC(signum, frame):
     print("\nCtrl+C detected! Exiting Cleanly")
-    sys.exist(0)
+    sys.exit(0)
 
 signal.signal(signal.SIGINT, handleCtrlC)
 '''
@@ -43,55 +43,103 @@ def handleCtrlC(signum, frame):
 # Register the handler for the SIGINT signal (Ctrl+C)
 signal.signal(signal.SIGINT, handleCtrlC)
 
-def initDB(name, password):
-# Connect to a database file (creates 'userDB.db' if its missing)
+
+##### START DB #####
+def initDB():
+    # Connect to a database file (creates 'userDB.db' if its missing)
     connection = sqlite3.connect('userDB.db')
     
-# Create a cursor object to execute our SQL commands
+    # Create a cursor object to execute SQL commands
     cursor = connection.cursor()
     
-# Execute query to create table and its attributes
-    init = ('''
+    # Execute query to create table and its attributes
+    init = '''
     CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     username TEXT UNIQUE NOT NULL, 
-    password hash TEXT NOT NULL
-    )''')
+    password TEXT NOT NULL
+    )'''
 
     cursor.execute(init)
 
-    admin = ("""
+    # Hardcoded admin creds
+    admin = """
     INSERT INTO users(username,password)
-    VALUES(admin,admin)
-    """)
+    VALUES('admin','admin123')
+    """
+    cursor.execute(admin)
 
-# Inserts values into the database
-    userRgstr = (f"""
-    INSERT INTO users(username, password)
-    VALUES('{name}','{password}')
-    """)
-    cursor.execute(userRgstr)
-
-
-# Saves changes made
+    # Saves changes made
     connection.commit()
 
-# Closes connection to prevent resource leaks
+    # Closes connection to prevent resource leaks
     connection.close()
 
 
 def loginDB(name, passwd):
-    connection - sqlite3.connect('userDB.db')
+    connection = sqlite3.connect('userDB.db')
 
     cursor = connection.cursor()
 
-    # SQLI ENTRY POINT
-    usrLgn = (f"""
-    SELECT * FROM users WHERE username={name} AND password={password}
-    """)
+    init = '''
+            CREATE TABLE IF NOT EXISTS users(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            username TEXT UNIQUE NOT NULL, 
+            password TEXT NOT NULL
+        )'''
+    cursor.execute(init)
 
-    connection.commit()
+    # SQLI ENTRY POINT
+    usrLgn = f"""
+    SELECT * FROM users WHERE username='{name}' AND password='{passwd}'
+    """
+    cursor.execute(usrLgn)
+
+    # Fetches for a matching record
+    usr = cursor.fetchone()
+
     connection.close()
+
+    return usr is not None
+
+
+def regUsr(name, passwd):
+    connection = sqlite3.connect("userDB.db")
+    cursor = connection.cursor()
+
+    try:
+        init = '''
+              CREATE TABLE IF NOT EXISTS users(
+              id INTEGER PRIMARY KEY AUTOINCREMENT, 
+              username TEXT UNIQUE NOT NULL, 
+              password TEXT NOT NULL
+        )'''
+        
+        cursor.execute(init)
+        
+        # Inserts values into the database
+        userRgstr = f"""
+        INSERT INTO users(username, password)
+        VALUES('{name}','{passwd}')
+        """
+        
+        cursor.execute(userRgstr)
+        connection.commit()
+
+        success = True
+    
+    except sqlite3.IntegrityError:
+        err_msg = f"User <b>{name}</b> name is taken"
+        success = False 
+    
+    finally:
+        connection.close()
+    
+    return success
+
+##### END DB #####
+
+
 
 # creates login route
 @app.route("/", methods=["GET", "POST"])
@@ -103,26 +151,26 @@ def login():
         name = request.form.get("name")
         password = request.form.get("password") # Captures the creds from the user
         
-        if not password:
-            return "Password required", 400
-        
-        if len(password) < 8:
-            return "Password too short!", 400
-        
-        combinedCreds = f"{name}:{password}" #combines two variables for later B64 encoding
-        encodedCreds = base64.b64encode(combinedCreds.encode()).decode()
+        b64Passwd = base64.b64encode(password.encode()).decode()
 
-        loginDB(name, password)
+        if loginDB(name, b64Passwd):
+            combinedCreds = f"{name}:{password}" #combines two variables for later B64 encoding
+            encodedCreds = base64.b64encode(combinedCreds.encode()).decode()
+            
+            #Stores user sessions at the browser level 
+            session["user"] = name
+            session["auth"] = encodedCreds 
+            
+            return redirect("/dashboard")
 
-        #Stores user sessions at the browser level 
-        session["user"] = name
-        session["auth"] = encodedCreds 
-        
-        return redirect("/dashboard")
-
-    # This renders the HTML file instead of returning a simple string
+        else:
+            # XSS ENTRY POINT
+            error_msg = f"User <b>{name}</b> was not found or invalid password."
+            return render_template("login.html", error_msg=error_msg)
+            
     return render_template("login.html")
 
+    
 
 
 
@@ -139,7 +187,7 @@ def register():
         if len(password) < 8:
             return "Password too short!", 400
 
-        initDB(name, b64Passwd)
+        regUsr(name, b64Passwd)
         
         return redirect("/dashboard")
 
