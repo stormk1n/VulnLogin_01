@@ -2,6 +2,10 @@ const sideMenu = document.querySelector("aside");
 const menuBtn = document.querySelector("#menu-btn");
 const closeBtn = document.querySelector("#close-btn");
 const themeToggler = document.querySelector(".theme-toggler");
+const date = new Date();
+const lclDate = date.toLocaleDateString();
+document.getElementById('current-date').textContent = lclDate;
+
 
 // show sidebar
 menuBtn.addEventListener('click', () => {
